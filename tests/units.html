@@ -10,6 +10,11 @@
 
 			let result = NaN;
 
+			if (typeof(input) === 'string') {
+
+				input = input.replace(/\D+/g, '');
+			}
+
 			if (Number.isInteger(Number(input))) {
 
 				result = Number(input);
