@@ -1,0 +1,191 @@
+﻿<link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.14.0.css">
+<div id="qunit"></div><div id="qunit-fixture"></div>
+<script src="https://code.jquery.com/qunit/qunit-2.14.0.js"></script>
+<script>
+
+	QUnit.module('convertViewersCountToNumber', function() {
+
+		// https://github.com/kwaschny/unwanted-twitch/issues/49#issuecomment-762396238
+		function convertViewersCountToNumber(input) {
+
+			let result = NaN;
+
+			if (Number.isInteger(Number(input))) {
+
+				result = Number(input);
+
+			} else if (Number.isFinite(Number(input.slice(0, -1)))) {
+
+				switch (input.slice(-1)) {
+
+					case 'K':
+						result = Number(input.slice(0, -1)) * 1e3;
+						break;
+					case 'M':
+						result = Number(input.slice(0, -1)) * 1e6;
+						break;
+
+				}
+			}
+
+			return result;
+		};
+		const fn = convertViewersCountToNumber;
+
+		QUnit.test('should return NaN', function(assert) {
+
+			const inputs = [
+				undefined,
+				null,
+				Infinity,
+				NaN,
+				'k',
+				'm',
+				document.createElement('div')
+			];
+
+			inputs.forEach(input => {
+				assert.strictEqual(fn(input), NaN);
+			});
+		});
+
+		QUnit.test('should return 0', function(assert) {
+
+			const inputs = [
+				'',
+				' 0 ',
+				' -0 ',
+				'0k',
+				'0K',
+				'0m',
+				'0M',
+				'0 k',
+				'0 M',
+				'0 viewers',
+				'0 Zuschauer',
+				'Espectadores 0 ',
+				0
+			];
+
+			inputs.forEach(input => {
+				assert.strictEqual(fn(input), 0);
+			});
+		});
+
+		QUnit.test('should return 100', function(assert) {
+
+			const inputs = [
+				' 100 ',
+				' 100 ',
+				' 100.0 ',
+				' 100,0 ',
+				'100 viewers',
+				'100 Zuschauer',
+				'Espectadores 100 ',
+				100
+			];
+
+			inputs.forEach(input => {
+				assert.strictEqual(fn(input), 100);
+			});
+		});
+
+		QUnit.test('should return 1000', function(assert) {
+
+			const inputs = [
+				' 1000 ',
+				' 1000.0 ',
+				' 1,000.0 ',
+				' 1.000,0 ',
+				'1k',
+				'1.0k',
+				'1,0k',
+				'1.000 viewers',
+				'1k viewers',
+				'1,000 Zuschauer',
+				'1 K Zuschauer',
+				'Espectadores 1000',
+				'Espectadores 1.0k ',
+				1000
+			];
+
+			inputs.forEach(input => {
+				assert.strictEqual(fn(input), 1000);
+			});
+		});
+
+		QUnit.test('should return 10000', function(assert) {
+
+			const inputs = [
+				' 10000 ',
+				' 10000.0 ',
+				' 10,000.0 ',
+				' 10.000,0 ',
+				'10k',
+				'10.0k',
+				'10,0k',
+				'10.000 viewers',
+				'10k viewers',
+				'10,000 Zuschauer',
+				'10 K Zuschauer',
+				'Espectadores 10000',
+				'Espectadores 10.0k ',
+				10000
+			];
+
+			inputs.forEach(input => {
+				assert.strictEqual(fn(input), 10000);
+			});
+		});
+
+		QUnit.test('should return 100000', function(assert) {
+
+			const inputs = [
+				' 100000 ',
+				' 100000.0 ',
+				' 100,000.0 ',
+				' 100.000,0 ',
+				'100k',
+				'100.0k',
+				'100,0k',
+				'100.000 viewers',
+				'100k viewers',
+				'100,000 Zuschauer',
+				'100 K Zuschauer',
+				'Espectadores 100000',
+				'Espectadores 100.0k ',
+				100000
+			];
+
+			inputs.forEach(input => {
+				assert.strictEqual(fn(input), 100000);
+			});
+		});
+
+		QUnit.test('should return 1000000', function(assert) {
+
+			const inputs = [
+				' 1000000 ',
+				' 1000000.0 ',
+				' 1,000,000.0 ',
+				' 1.000.000,0 ',
+				'1m',
+				'1.0m',
+				'1,0m',
+				'1.000.000 viewers',
+				'1m viewers',
+				'1,000,000 Zuschauer',
+				'1 Mio. Zuschauer',
+				'Espectadores 1000000',
+				'Espectadores 1.0m ',
+				1000000
+			];
+
+			inputs.forEach(input => {
+				assert.strictEqual(fn(input), 1000000);
+			});
+		});
+
+	});
+
+</script>
